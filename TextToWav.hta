@@ -1,0 +1,54 @@
+<head>
+<title>TextToWav</title>
+<meta charset="utf-8">
+<hta:application scroll=no>
+<script Language=VBScript>
+Set sv = CreateObject("Sapi.SpVoice")
+str = ""
+For Each i In sv.GetVoices()
+str = str + "<option>" + i.GetDescription + "</option>"
+Next
+Sub Click
+Set sv = CreateObject("Sapi.SpVoice")
+Set sfs = CreateObject("Sapi.SpFileStream")
+Set stm = CreateObject("Adodb.Stream") 
+Set re = New RegExp
+re.Pattern = "\.txt$"
+If re.Test(FILE.value) Then
+fn = Mid(FILE.value, InStrRev(FILE.value, "\") + 1)
+sfs.Open Left(fn, Len(fn) - 4)&".wav",3
+Set sv.Voice = sv.GetVoices().Item(document.getElementById("SELECT").selectedIndex)
+Set sv.AudioOutputStream = sfs
+stm.Type = 2
+stm.mode = 3
+stm.charset = "utf-8"
+stm.Open
+stm.LoadFromFile FILE.value
+sv.Speak(stm.readtext)
+m = "TextToWav by """ & sv.Voice.GetDescription & """ is completed!" & vbCrLf & "文本已转换为基于""" & sv.Voice.GetDescription & """音源的语音！"
+msgbox m,,"TextToWav"
+stm.close
+close()
+Else
+alert("Not selected TXT file!" & vbCrLf & "请选择文本文档！")
+End If
+End Sub
+</script>
+</head>
+<body>
+<p>Choose speaker（选择音源）:</p>
+<select id=SELECT>
+<script Language=VBScript>
+Set sv = CreateObject("Sapi.SpVoice")
+str = ""
+For Each i In sv.GetVoices()
+str = str + "<option>" + i.GetDescription + "</option>"
+Next
+document.write(str)
+</script>
+</select>
+<p>Choose TXT file（选择文本文档）:</p>
+<input type=file id=FILE>
+<p>Click button to start（点击"start"按钮开始转换）:</p>
+<button onclick=Click()>start</button>
+</body>
